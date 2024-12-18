@@ -1,44 +1,45 @@
 defmodule Aoc2 do
-  defp input(test) do
-    Helper.file_to_numbers(Helper.file(2, test))
+  defp input() do
+    Helper.file_to_numbers(2)
   end
 
-  def part1(test \\ false) do
-    for [head | tail] <- input(test), reduce: 0 do
-      acc ->
-        acc +
-          if check(tail, head, head < hd(tail)) do
-            1
-          else
-            0
+  defp reorder() do
+    input()
+    |> Enum.map(fn levels ->
+      {_, r} =
+        Enum.reduce(levels, fn l, acc ->
+          case acc do
+            {last, acc} -> {l, acc + last - l}
+            last -> {l, last - l}
           end
-    end
-  end
+        end)
 
-  def part2(test \\ false) do
-    for levels <- input(test), reduce: 0 do
-      acc ->
-        acc +
-          Enum.count_until(
-            0..length(levels),
-            fn i ->
-              [head | tail] = List.delete_at(levels, i)
-              check(tail, head, head < hd(tail))
-            end,
-            1
-          )
-    end
-  end
-
-  defp check(tail, head, incr) do
-    Enum.reduce_while(tail, head, fn next, prev ->
-      dif = next - prev
-
-      if (incr and dif in 1..3) or (!incr and dif in -3..-1) do
-        {:cont, next}
+      if r > 0 do
+        Enum.reverse(levels)
       else
-        {:halt, :fail}
+        levels
       end
-    end) != :fail
+    end)
+  end
+
+  def part1() do
+    reorder()
+    |> Enum.count(fn levels ->
+      Enum.zip_reduce(levels, tl(levels), true, fn l1, l2, acc ->
+        if acc and (l2 - l1) in 1..3, do: true, else: false
+      end)
+    end)
+  end
+
+  def part2() do
+    reorder()
+    |> Enum.count(fn levels ->
+      Enum.zip(levels, tl(levels))
+      |> Enum.with_index()
+      |> Enum.reduce([], fn {{l1, l2}, i}, bad ->
+        if (l2 - l1) in 1..3, do: bad, else: [i | bad]
+      end)
+      |> Enum.count() < 2
+    end)
   end
 end

@@ -1,14 +1,6 @@
 defmodule Helper do
-  def file(day, test \\ false) do
-    "./inputs/#{day}#{if test do
-      "test"
-    else
-      ""
-    end}"
-  end
-
-  def file_to_numbers(path) do
-    File.stream!(path)
+  def file_to_numbers(day) do
+    File.stream!("./inputs/#{day}")
     |> Enum.map(&stringtoints/1)
   end
 

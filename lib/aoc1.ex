@@ -1,20 +1,20 @@
 defmodule Aoc1 do
-  defp input(test) do
-    Helper.file_to_numbers(Helper.file(1, test))
+  defp input() do
+    Helper.file_to_numbers(1)
     |> Stream.map(&List.to_tuple/1)
     |> Enum.unzip()
   end
 
-  def part1(test \\ false) do
-    {a, b} = input(test)
-    Enum.zip_reduce(Enum.sort(a), Enum.sort(b), 0, fn t1, t2, acc -> acc + abs(t1 - t2) end)
+  def part1() do
+    input()
+    |> Tuple.to_list()
+    |> Enum.map(&Enum.sort/1)
+    |> Enum.zip_reduce(0, fn [l1, l2], acc -> acc + abs(l1 - l2) end)
   end
 
-  def part2(test \\ false) do
-    {a, b} = input(test)
-
-    for n <- a, reduce: 0 do
-      acc -> acc + n * Enum.count(b, fn b -> n == b end)
-    end
+  def part2() do
+    {a, b} = input()
+    f = Enum.frequencies(b)
+    Enum.reduce(a, 0, fn n, acc -> acc + n * (f[n] || 0) end)
   end
 end
